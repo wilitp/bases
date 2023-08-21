@@ -1,0 +1,1 @@
+SELECT Code FROM country;
