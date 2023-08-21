@@ -1,5 +1,14 @@
 USE `world`;
 
+-- Continents
+INSERT INTO `continent` VALUES ("Africa", 30370000, 20.4, NULL);
+INSERT INTO `continent` VALUES ("Antarctica", 14000000, 9.2, NULL);
+INSERT INTO `continent` VALUES ("Asia", 44579000, 29.5, NULL);
+INSERT INTO `continent` VALUES ("Europe", 10180000, 6.8, NULL);
+INSERT INTO `continent` VALUES ("North America", 24709000, 16.5, NULL);
+INSERT INTO `continent` VALUES ("Oceania", 8600000, 5.9, NULL);
+INSERT INTO `continent` VALUES ("South America", 17840000, 12.0, NULL);
+
 -- Countries
 INSERT INTO `country` VALUES ('ABW','Aruba','North America','Caribbean',193.00,NULL,103000,78.4,828.00,793.00,'Aruba','Nonmetropolitan Territory of The Netherlands','Beatrix',129,'AW');
 INSERT INTO `country` VALUES ('AFG','Afghanistan','Asia','Southern and Central Asia',652090.00,1919,22720000,45.9,5976.00,NULL,'Afganistan/Afqanestan','Islamic Emirate','Mohammad Omar',1,'AF');
@@ -242,6 +251,7 @@ INSERT INTO `country` VALUES ('ZMB','Zambia','Africa','Eastern Africa',752618.00
 INSERT INTO `country` VALUES ('ZWE','Zimbabwe','Africa','Eastern Africa',390757.00,1980,11669000,37.8,5951.00,8670.00,'Zimbabwe','Republic','Robert G. Mugabe',4068,'ZW');
 
 -- Cities
+INSERT INTO `city` VALUES (4080,'McMurdo Station','USA','McMurdo Station', 1000);
 INSERT INTO `city` VALUES (1,'Kabul','AFG','Kabol',1780000);
 INSERT INTO `city` VALUES (2,'Qandahar','AFG','Qandahar',237500);
 INSERT INTO `city` VALUES (3,'Herat','AFG','Herat',186800);
@@ -5307,3 +5317,33 @@ INSERT INTO `countrylanguage` VALUES ('ZWE','English','T',2.2);
 INSERT INTO `countrylanguage` VALUES ('ZWE','Ndebele','F',16.2);
 INSERT INTO `countrylanguage` VALUES ('ZWE','Nyanja','F',2.2);
 INSERT INTO `countrylanguage` VALUES ('ZWE','Shona','F',72.1);
+
+-- Update continent most populous cities
+
+update continent
+set MostPopulousCity = 608
+where Name = "Africa";
+
+update continent
+set MostPopulousCity = 4080
+where Name = "Antarctica";
+
+update continent
+set MostPopulousCity = 1024
+where Name = "Asia";
+
+update continent
+set MostPopulousCity = 3357
+where Name = "Europe";
+
+update continent
+set MostPopulousCity = 2515
+where Name = "North America";
+
+update continent
+set MostPopulousCity = 130
+where Name = "Oceania";
+
+update continent
+set MostPopulousCity = 206
+where Name = "South America";

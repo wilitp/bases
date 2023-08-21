@@ -19,7 +19,8 @@ create table country (
 	HeadOfState varchar(255),
 	Capital int,
 	Code2 varchar(255)
-)
+);
+
 
 create table city (
 	ID int primary key,
@@ -27,14 +28,17 @@ create table city (
 	CountryCode varchar(255),
 	District varchar(255),
 	Population int
-)
+);
 
 create table countrylanguage (
 	CountryCode varchar(255),
 	Language varchar(255),
 	IsOfficial varchar(255),
-	Percentage int
-)
+	Percentage decimal(5, 2)
+);
+
+alter table countrylanguage
+add check (Percentage >= 0 and Percentage <= 100);
 
 -- Primary key para languages
 alter table countrylanguage
@@ -50,3 +54,23 @@ alter table countrylanguage
 add foreign key (CountryCode) references country(Code);
 
 
+-- Tabla continente
+create table continent (
+	Name varchar(255) primary key,
+	SuffaceArea int,
+	PercentTotalMass decimal(5, 2),
+	MostPopulousCity int
+);
+
+-- Integridad de porcentage
+
+alter table continent
+add check (PercentTotalMass >= 0 and PercentTotalMass <= 100);
+
+-- Relacion continente a ciudad mas poblada
+alter table continent
+add foreign key (MostPopulousCity) references city(ID);
+
+
+alter table country
+add foreign key (Continent) references continent(Name);
