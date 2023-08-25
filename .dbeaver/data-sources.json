@@ -1,19 +1,24 @@
 {
 	"folders": {},
 	"connections": {
-		"mysql8-18a184011a9-4ccc3f8f2b07917b": {
+		"mysql8-18a2dcb8801-7885b17f08ec6567": {
 			"provider": "mysql",
 			"driver": "mysql8",
-			"name": "world",
+			"name": "localhost",
 			"save-password": true,
 			"configuration": {
 				"host": "localhost",
 				"port": "3306",
-				"database": "world",
-				"url": "jdbc:mysql://localhost:3306/world",
+				"url": "jdbc:mysql://localhost:3306/",
 				"configurationType": "MANUAL",
 				"type": "dev",
-				"auth-model": "native"
+				"properties": {
+					"connectTimeout": "20000",
+					"rewriteBatchedStatements": "true",
+					"enabledTLSProtocols": "TLSv1,TLSv1.1,TLSv1.2"
+				},
+				"auth-model": "native",
+				"handlers": {}
 			}
 		}
 	},
