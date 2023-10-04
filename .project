@@ -9,4 +9,26 @@
 	<natures>
 		<nature>org.jkiss.dbeaver.DBeaverNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>practico4/Queries.sql</name>
+			<type>1</type>
+			<location>/home/guille/famaf/bases/practico4/Queries.sql</location>
+		</link>
+		<link>
+			<name>practico5/Queries.sql</name>
+			<type>1</type>
+			<location>//home/guille/famaf/bases/practico5/Queries.sql</location>
+		</link>
+		<link>
+			<name>practico5/sakila-data.sql</name>
+			<type>1</type>
+			<location>//home/guille/famaf/bases/practico5/sakila-data.sql</location>
+		</link>
+		<link>
+			<name>practico5/sakila-schema.sql</name>
+			<type>1</type>
+			<location>//home/guille/famaf/bases/practico5/sakila-schema.sql</location>
+		</link>
+	</linkedResources>
 </projectDescription>

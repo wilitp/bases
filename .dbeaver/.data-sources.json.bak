@@ -1,15 +1,15 @@
 {
 	"folders": {},
 	"connections": {
-		"mysql8-18ae268899c-3aed498e13a1010e": {
+		"mysql8-18abe1768de-17b324b3188daf64": {
 			"provider": "mysql",
 			"driver": "mysql8",
-			"name": "localhost 2",
+			"name": "localhost",
 			"save-password": true,
 			"configuration": {
 				"host": "localhost",
-				"port": "3306",
-				"url": "jdbc:mysql://localhost:3306/",
+				"port": "3307",
+				"url": "jdbc:mysql://localhost:3307/",
 				"configurationType": "MANUAL",
 				"type": "dev",
 				"properties": {
