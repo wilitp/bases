@@ -9,11 +9,3 @@ services:
       - 3306:3306
     env_file:
       - db.env
-  sakila:
-    restart: 'unless-stopped'
-    image: emicba/sakila
-    container_name: sakilaLabBases
-    ports:
-      - 3307:3306
-    env_file:
-      - db.env

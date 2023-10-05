@@ -99,25 +99,57 @@ WHERE (inventory_id = NEW.inventory_id);
 -- El primero es una clave foránea a la tabla rental y el segundo es un valor numérico con dos decimales.
 
 CREATE TABLE fines (
-	rental_id int
+	rental_id int,
 	amount numeric(10, 2)
 );
 
+ALTER TABLE fines 
+ADD FOREIGN KEY (rental_id) REFERENCES rental(rental_id);
+
+-- 12. Cree un procedimiento `check_date_and_fine` que revise la tabla `rental` 
+-- y cree un registro en la tabla `fines` por cada `rental` cuya devolución (return_date) 
+-- haya tardado más de 3 días (comparación con rental_date). 
+-- El valor de la multa será el número de días de retraso multiplicado por 1.5.
+
+-- No entiendo pq no puedo llamar tanto al CREATE como al CALL juntos :(
 
 
+delimiter //
+CREATE PROCEDURE IF NOT EXISTS check_date_and_fine()
+BEGIN 
+    INSERT INTO fines
+    (SELECT rental_id, retrasos.retraso * 1.5 AS amount
+    FROM(SELECT r.rental_id, DATEDIFF(r.return_date, r.rental_date) AS retraso
+    FROM rental r
+    HAVING retraso > 3) retrasos);
+END//
+
+delimiter ;
+
+CALL check_date_and_fine();
 
 
+-- 13. Crear un rol `employee` que tenga acceso de inserción, 
+-- eliminación y actualización a la tabla `rental`.
 
+CREATE ROLE IF NOT EXISTS employee;
 
+GRANT INSERT, DELETE, UPDATE ON rental TO employee;
 
+-- 14. Revocar el acceso de eliminación a `employee` 
+-- y crear un rol `administrator` que tenga todos los privilegios sobre la BD `sakila`.
 
+REVOKE DELETE ON rental FROM employee;
 
+CREATE ROLE IF NOT EXISTS administrator;
+GRANT ALL ON sakila TO administrator;
 
+-- 15. Crear dos roles de empleado. 
+-- A uno asignarle los permisos de `employee` y al otro de `administrator`.
 
+CREATE ROLE IF NOT EXISTS mortal_employee;
+CREATE ROLE IF NOT EXISTS boss_employee;
 
+GRANT employee TO mortal_employee;
 
-
-
-
-
-
+GRANT administrator TO boss_employee;
