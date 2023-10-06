@@ -137,9 +137,9 @@ GROUP BY c.customerNumber;
 -- 2. consulta mas dificil
 -- Encontrar el nombre y la cantidad vendida total de los 10 productos más vendidos que, a su vez, representen al menos el 4% del total de productos, contando unidad por unidad, de todas las órdenes donde intervienen. No utilizar LIMIT.
 
--- No me salio lo de no usar limit :(
-
-SELECT p.productName, sum(o.quantityOrdered) totalProduct,
+SELECT productName, totalProduct AS units_sold FROM 
+(SELECT p.productName, sum(o.quantityOrdered) totalProduct,
+ROW_NUMBER() OVER w AS `rn`,
 (SELECT sum(quantityOrdered)
 FROM orderdetails o
 JOIN 
@@ -156,7 +156,17 @@ ON
 o.productCode = p.productCode
 GROUP BY p.productCode
 HAVING totalProduct >= 0.04 * totalSales
-ORDER BY totalProduct DESC
-LIMIT 10
+WINDOW w AS (ORDER BY sum(o.quantityOrdered) DESC)) aux
+WHERE `rn` <= 10;
+
+-- explicacion del engendro de arriba
+
+-- totalSales: cantidad de unidades vendidas en todas las ventas donde se vendio el producto en cuestion. esta se calcula viendo las orders donde exista un orderdetail que le corresponda y tenga ese producto y luego sumando todas las cantidades vendidas.
+
+-- luego, en la query que usa totalSales agrupamos por producto y conseguimos la cantidad total de unidades vendidas para luego filtrar los que cumplen la cond del 4%.
+
+-- una vez hecho esto, usamos la window function row_number para calcular para cada row resultante la su enumeracion.
+
+-- usamos esa enumeracion para conseguir los primeros 10
 
 
