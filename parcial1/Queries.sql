@@ -1,5 +1,31 @@
 USE olympics;
 
+-- views que uso luego
+
+DROP VIEW IF EXISTS medalsPerRegion;
+CREATE VIEW medalsPerRegion AS (SELECT medals_dedup.id, region_name, 
+    sum(medals_dedup.medal_name = "Gold") AS gold,
+    sum(medals_dedup.medal_name = "Silver") AS silver,
+    sum(medals_dedup.medal_name = "Bronze") AS bronze,
+    count(*) AS total_medals
+    FROM
+    (SELECT DISTINCT
+        nr.id, nr.region_name, m.medal_name, ce.event_id
+    FROM person p 
+    JOIN games_competitor gc 
+        ON gc.person_id = p.id 
+    JOIN 
+        competitor_event ce 
+        ON ce.competitor_id = gc.id
+    JOIN medal m 
+        ON ce.medal_id = m.id
+    JOIN person_region pr 
+        ON p.id = pr.person_id 
+    JOIN noc_region nr 
+        ON pr.region_id = nr.id       
+    WHERE m.medal_name <> "NA" ) medals_dedup
+GROUP BY id)
+
 -- 1. Crear un campo nuevo `total_medals` en la tabla `person` que almacena la cantidad de medallas ganadas por cada persona. Por defecto, con valor 0.
 
 ALTER TABLE person 
@@ -67,51 +93,18 @@ GROUP BY s.id
 -- 5.Listar el número total de medallas de oro, plata y bronce ganadas por cada país (país representado en la tabla `noc_region`), agruparlas los resultados por pais.
 
 SELECT 
-    nr.region_name, 
-    sum(m.medal_name = "Gold") AS gold,
-    sum(m.medal_name = "Silver") AS silver,
-    sum(m.medal_name = "Bronze") AS bronze
-FROM person p 
-JOIN games_competitor gc 
-    ON gc.person_id = p.id 
-JOIN 
-    competitor_event ce 
-    ON ce.competitor_id = gc.id
-JOIN medal m 
-    ON ce.medal_id = m.id
-JOIN person_region pr 
-    ON p.id = pr.person_id 
-JOIN noc_region nr 
-    ON pr.region_id = nr.id       
-WHERE m.medal_name <> "NA"
-GROUP BY nr.region_name 
+    region_name, gold, silver, bronze
+FROM medalsPerRegion;
 
 -- 6. Listar el país con más y menos medallas ganadas en la historia de las olimpiadas. 
 
-WITH medalsPerCountry AS (SELECT 
-    nr.region_name, 
-    count(m.id) AS medals
-FROM person p 
-JOIN games_competitor gc 
-    ON gc.person_id = p.id 
-JOIN 
-    competitor_event ce 
-    ON ce.competitor_id = gc.id
-JOIN medal m 
-    ON ce.medal_id = m.id
-JOIN person_region pr 
-    ON p.id = pr.person_id 
-JOIN noc_region nr 
-    ON pr.region_id = nr.id       
-WHERE m.medal_name <> "NA" 
-GROUP BY nr.region_name)
-((SELECT * FROM medalsPerCountry
-ORDER BY medals DESC
+(SELECT region_name, total_medals FROM medalsPerRegion 
+ORDER BY total_medals DESC
 LIMIT 1)
 union
-(SELECT * FROM medalsPerCountry
-ORDER BY medals ASC
-LIMIT 1));
+(SELECT region_name, total_medals FROM medalsPerRegion 
+ORDER BY total_medals ASC
+LIMIT 1)
 
 -- 7.
 
@@ -228,7 +221,6 @@ BEGIN
     INSERT INTO competitor_event (event_id, competitor_id, medal_id) VALUES (event_id, cb_id, bm_id);
 END//
 delimiter ;
-
 
 -- 9. Crear el rol `organizer` y asignarle permisos de eliminación sobre la tabla `games` y permiso de actualización sobre la columna `games_name`  de la tabla `games` .
 
