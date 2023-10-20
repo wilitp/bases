@@ -169,4 +169,3 @@ WHERE `rn` <= 10;
 
 -- usamos esa enumeracion para conseguir los primeros 10
 
-

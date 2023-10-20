@@ -2,15 +2,13 @@ USE olympics;
 
 -- views que uso luego
 
-DROP VIEW IF EXISTS medalsPerRegion;
-CREATE VIEW medalsPerRegion AS (SELECT medals_dedup.id, region_name, 
-    sum(medals_dedup.medal_name = "Gold") AS gold,
-    sum(medals_dedup.medal_name = "Silver") AS silver,
-    sum(medals_dedup.medal_name = "Bronze") AS bronze,
-    count(*) AS total_medals
-    FROM
+-- tuplas unicas (region, medalla, evento, deporte), 
+-- permite contar medallas por evento, region deporte o nombre de medalla
+-- si dos competidores obtuvieron la medalla de oro en un evento por ser del mismo equipo, esto sera representado en una unica fila de esta vista.
+DROP VIEW IF EXISTS medalsRegionEventSport;
+CREATE VIEW medalsRegionEventSport as
     (SELECT DISTINCT
-        nr.id, nr.region_name, m.medal_name, ce.event_id
+        nr.id, nr.region_name, m.medal_name, ce.event_id, s.sport_name
     FROM person p 
     JOIN games_competitor gc 
         ON gc.person_id = p.id 
@@ -23,8 +21,21 @@ CREATE VIEW medalsPerRegion AS (SELECT medals_dedup.id, region_name,
         ON p.id = pr.person_id 
     JOIN noc_region nr 
         ON pr.region_id = nr.id       
-    WHERE m.medal_name <> "NA" ) medals_dedup
-GROUP BY id)
+    JOIN event e
+        ON ce.event_id = e.id
+    JOIN sport s
+        ON e.sport_id = s.id
+    WHERE m.medal_name <> "NA" );
+
+DROP VIEW IF EXISTS medalsPerRegion;
+CREATE VIEW medalsPerRegion AS (SELECT medals_dedup.id, region_name, 
+    sum(medals_dedup.medal_name = "Gold") AS gold,
+    sum(medals_dedup.medal_name = "Silver") AS silver,
+    sum(medals_dedup.medal_name = "Bronze") AS bronze,
+    count(*) AS total_medals
+    FROM
+     medalsRegionEventSport medals_dedup
+GROUP BY id);
 
 -- 1. Crear un campo nuevo `total_medals` en la tabla `person` que almacena la cantidad de medallas ganadas por cada persona. Por defecto, con valor 0.
 
@@ -32,8 +43,6 @@ ALTER TABLE person
 ADD COLUMN total_medals int DEFAULT 0;
 
 -- 2. Actualizar la columna  `total_medals` de cada persona con el recuento real de medallas que ganó. Por ejemplo, para Michael Fred Phelps II, luego de la actualización debería tener como valor de `total_medals` igual a 28.
-
--- INSERT INTO person (total_medals) ... 
 
 UPDATE person
 JOIN 
@@ -54,41 +63,26 @@ person.total_medals = medalsPerPerson.total_medals;
 
 -- 3.Devolver todos los medallistas olímpicos de Argentina, es decir, los que hayan logrado alguna medalla de oro, plata, o bronce, enumerando la cantidad por tipo de medalla.
 
-SELECT p.full_name , m.medal_name, count(DISTINCT m.id) FROM 
-person p
+SELECT p.full_name, p.total_medals, count(m.id),
+    sum(m.medal_name = "Gold") AS gold,
+    sum(m.medal_name = "Silver") AS silver,
+    sum(m.medal_name = "Bronze") AS bronze
+FROM 
+    person p
 JOIN games_competitor gc ON gc.person_id = p.id
 JOIN competitor_event ce ON gc.id = ce.competitor_id 
 JOIN medal m ON ce.medal_id = m.id
 JOIN person_region pr ON pr.person_id = p.id
 JOIN noc_region nr ON pr.region_id = nr.id
-WHERE nr.region_name LIKE "Argentina"
-GROUP BY p.id, m.medal_name 
-HAVING (m.medal_name LIKE "Gold"
-       OR 
-       m.medal_name LIKE "Silver"
-       OR
-       m.medal_name LIKE "Bronze")
+WHERE nr.region_name LIKE "Argentina" AND m.medal_name <> "NA"
+GROUP BY p.id; 
        
 -- 4. Listar el total de medallas ganadas por los deportistas argentinos en cada deporte.
 
-SELECT s.sport_name , count(m.id) FROM person p 
-JOIN games_competitor gc 
-    ON gc.person_id = p.id 
-JOIN 
-    competitor_event ce 
-    ON ce.competitor_id = gc.id
-JOIN medal m 
-    ON ce.medal_id = m.id
-JOIN event e 
-    ON ce.event_id = e.id
-JOIN sport s
-    ON e.sport_id = s.id
-JOIN person_region pr 
-    ON p.id = pr.person_id 
-JOIN noc_region nr 
-    ON pr.region_id = nr.id       
-WHERE m.medal_name <> "NA" AND region_name LIKE "Argentina"
-GROUP BY s.id
+SELECT m.sport_name, count(*) AS medals
+FROM  medalsRegionEventSport m
+WHERE m.region_name = "Argentina"
+GROUP BY m.sport_name;
 
 -- 5.Listar el número total de medallas de oro, plata y bronce ganadas por cada país (país representado en la tabla `noc_region`), agruparlas los resultados por pais.
 
@@ -104,11 +98,11 @@ LIMIT 1)
 union
 (SELECT region_name, total_medals FROM medalsPerRegion 
 ORDER BY total_medals ASC
-LIMIT 1)
+LIMIT 1);
 
 -- 7.
 
-CREATE TRIGGER increase_number_of_medals
+DROP TRIGGER IF EXISTS increase_number_of_medals;
 
 delimiter //
 CREATE TRIGGER IF NOT EXISTS increase_number_of_medals AFTER INSERT ON competitor_event
@@ -137,7 +131,7 @@ END//
 delimiter ;
 
 
-
+DROP TRIGGER IF EXISTS decrease_number_of_medals;
 
 delimiter //
 CREATE TRIGGER IF NOT EXISTS decrease_number_of_medals BEFORE DELETE ON competitor_event
@@ -224,7 +218,7 @@ delimiter ;
 
 -- 9. Crear el rol `organizer` y asignarle permisos de eliminación sobre la tabla `games` y permiso de actualización sobre la columna `games_name`  de la tabla `games` .
 
-
+DROP ROLE IF EXISTS organizer;
 CREATE ROLE organizer;
 GRANT DELETE ON games TO organizer;
 GRANT UPDATE (games_name) ON games TO organizer;

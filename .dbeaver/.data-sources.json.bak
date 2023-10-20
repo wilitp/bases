@@ -1,10 +1,10 @@
 {
 	"folders": {},
 	"connections": {
-		"mysql8-18ae268899c-3aed498e13a1010e": {
+		"mysql8-18affbd4a5a-406390031f80de85": {
 			"provider": "mysql",
 			"driver": "mysql8",
-			"name": "localhost 2",
+			"name": "localhost",
 			"save-password": true,
 			"configuration": {
 				"host": "localhost",

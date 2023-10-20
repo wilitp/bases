@@ -11,9 +11,14 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>parcial1</name>
+			<type>2</type>
+			<location>//home/guille/famaf/bases/parcial1/</location>
+		</link>
+		<link>
 			<name>practico6</name>
 			<type>2</type>
-			<location>//home/guille/famaf/bases/practico6/</location>
+			<location>/home/guille/famaf/bases/practico6</location>
 		</link>
 		<link>
 			<name>practico4/Queries.sql</name>
