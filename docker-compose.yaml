@@ -11,3 +11,12 @@ services:
       - db.env
     volumes:
       - ./parcial1:/parcial1
+
+  mongo:
+    restart: 'unless-stopped'
+    image: mongo
+    container_name: labBasesMongo
+    volumes:
+      - ./sharedvolume:/sharedvolume
+    ports:
+      - 127.0.0.1:27017:27017
