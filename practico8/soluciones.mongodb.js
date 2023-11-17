@@ -45,14 +45,26 @@ const commentsPerGenreAgg = [
             },
         },
     },
+    {
+        $sort: {
+            commentCount: -1
+        }
+    },
+    {
+        $limit: 5
+    }
 ]
 
-use("mflix")
-db.comments.aggregate(
-    commentsPerGenreAgg
-)
+// db.comments.aggregate(
+//     commentsPerGenreAgg
+// )
 
+use("mflix")
+db.CommentCountPerGenre.drop()
 db.createView("CommentCountPerGenre", "comments", commentsPerGenreAgg)
+
+use("mflix")
+db.CommentCountPerGenre.find();
 
 // 10. Listar los actores (cast) que trabajaron en 2 o más películas dirigidas por "Jules Bass". Devolver el nombre de estos actores junto con la lista de películas (solo título y año) dirigidas por “Jules Bass” en las que trabajaron. 
 // Hint1: addToSet
