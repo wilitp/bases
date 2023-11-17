@@ -55,10 +55,6 @@ const commentsPerGenreAgg = [
     }
 ]
 
-// db.comments.aggregate(
-//     commentsPerGenreAgg
-// )
-
 use("mflix")
 db.CommentCountPerGenre.drop()
 db.createView("CommentCountPerGenre", "comments", commentsPerGenreAgg)
